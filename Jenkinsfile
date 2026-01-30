@@ -8,6 +8,12 @@ pipeline {
     }
 
     stages {
+        stage('Pipeline Check') {
+            steps {
+                echo "✅ Jenkins pipeline is running!"  // Quick verification stage
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm  // Get recent code from Git
