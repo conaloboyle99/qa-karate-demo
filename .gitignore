@@ -1,0 +1,15 @@
+# Node / Cypress
+node_modules/
+npm-debug.log
+cypress/videos/
+cypress/screenshots/
+
+# Python
+venv/
+.pytest_cache/
+
+# macOS
+.DS_Store
+
+# Jenkins
+reports/
