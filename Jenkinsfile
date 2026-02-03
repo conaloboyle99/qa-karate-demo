@@ -44,10 +44,20 @@ pipeline {
             }
         }
 
+        stage('Run Cypress Tests') {
+            steps {
+                echo "🏃 Running Cypress tests..."
+                // Run headless Cypress tests
+                sh 'npm run cypress:run-headless'
+            }
+        }
+
         stage('Archive Test Results') {
             steps {
                 junit "${KARATE_DIR}/target/surefire-reports/*.xml"
                 archiveArtifacts artifacts: "${KARATE_DIR}/target/karate-reports/*.html", allowEmptyArchive: true
+                archiveArtifacts artifacts: "cypress/screenshots/**/*.*", allowEmptyArchive: true
+                archiveArtifacts artifacts: "cypress/videos/**/*.*", allowEmptyArchive: true
             }
         }
     }
