@@ -1,18 +1,49 @@
+# ------------------------------
 # Node / Cypress
+# ------------------------------
 node_modules/
 npm-debug.log
 cypress/videos/
 cypress/screenshots/
+cypress/cache/
 
+# ------------------------------
 # Python
+# ------------------------------
 venv/
 .pytest_cache/
 
+# ------------------------------
 # macOS
+# ------------------------------
 .DS_Store
+Thumbs.db
 
+# ------------------------------
 # Jenkins
+# ------------------------------
 reports/
 
-# Ignore Maven build outputs
+# ------------------------------
+# Maven / Karate build outputs
+# ------------------------------
 /karate/target/
+/karate/karate-*.jar
+*.karate-json.txt
+*.html
+*.xml
+
+# ------------------------------
+# IDE / Editor files
+# ------------------------------
+.idea/
+*.iml
+.vscode/
+*.ipr
+*.iws
+
+# ------------------------------
+# Optional temp / swap files
+# ------------------------------
+*.tmp
+*.swp
