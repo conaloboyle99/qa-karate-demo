@@ -3,12 +3,12 @@ pipeline {
 
     // Use tools installed in Jenkins
     tools {
-        jdk 'jdk17'           // Your configured JDK
+        jdk 'jdk17'   // matches your configured JDK
     }
 
     environment {
-        KARATE_DIR = 'karate'     // Relative path to Karate project
-        REPORTS_DIRS = 'reports,karate/target/surefire-reports' // Comma-separated list of report folders
+        KARATE_DIR = 'karate'   // Relative path to Karate project
+        REPORTS_DIR = 'reports' // Top-level custom reports folder
     }
 
     stages {
@@ -29,30 +29,22 @@ pipeline {
             steps {
                 dir("${KARATE_DIR}") {
                     echo "🏃 Running Karate tests using Maven wrapper..."
-                    // Use Maven wrapper if present, fallback to system Maven
-                    script {
-                        if (fileExists('./mvnw')) {
-                            sh './mvnw clean test'
-                        } else {
-                            sh 'mvn clean test'
-                        }
-                    }
+                    // Ensure Maven wrapper is executable and run tests
+                    sh 'chmod +x mvnw'
+                    sh './mvnw clean test'
                 }
             }
         }
 
         stage('Archive Test Results') {
             steps {
-                script {
-                    def dirs = REPORTS_DIRS.split(',')
-                    dirs.each { reportDir ->
-                        if (fileExists(reportDir)) {
-                            echo "📂 Archiving test results from: ${reportDir}"
-                            junit "${reportDir}/**/*.xml"
-                        } else {
-                            echo "⚠️ Report directory not found: ${reportDir}"
-                        }
-                    }
+                // Archive Maven Surefire JUnit reports
+                dir("${KARATE_DIR}") {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+                // Archive any top-level custom reports
+                dir("${REPORTS_DIR}") {
+                    junit '**/*.xml'
                 }
             }
         }
