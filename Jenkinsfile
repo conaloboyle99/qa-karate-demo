@@ -1,9 +1,9 @@
 pipeline {
     agent any
 
-    environment {
-        WORKDIR = 'karate'       // Folder containing pom.xml
-        MAVEN_CMD = './mvnw'     // Maven wrapper
+    tools {
+        maven 'Maven'  // The Maven name you configured
+        jdk 'JAVA_HOME' // Your JDK configured in Jenkins
     }
 
     stages {
@@ -21,20 +21,16 @@ pipeline {
 
         stage('Run Karate Tests') {
             steps {
-                // Change directory to where pom.xml exists
-                dir("${WORKDIR}") {
-                    echo "Running Karate tests using Maven wrapper..."
-                    sh "${MAVEN_CMD} clean test"
+                dir('karate') { // Change to the karate/ folder
+                    echo "Running Karate tests using Maven..."
+                    sh "mvn clean test"
                 }
             }
         }
 
         stage('Archive Test Results') {
             steps {
-                dir("${WORKDIR}") {
-                    archiveArtifacts artifacts: 'target/surefire-reports/**/*.xml', allowEmptyArchive: true
-                    junit 'target/surefire-reports/**/*.xml'
-                }
+                junit '**/target/surefire-reports/*.xml'
             }
         }
     }
@@ -42,12 +38,6 @@ pipeline {
     post {
         always {
             echo "Pipeline finished. Check test results above."
-        }
-        success {
-            echo "✅ Build and tests completed successfully!"
-        }
-        failure {
-            echo "❌ Build or tests failed. Check console output for details."
         }
     }
 }
