@@ -2,18 +2,19 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk17'   // Your configured JDK
+        jdk 'jdk17'
     }
 
     environment {
         KARATE_DIR = 'karate'
+        BRANCH_NAME = 'cypress-pipeline-integration'
     }
 
     stages {
 
         stage('Pipeline Check') {
             steps {
-                echo "✅ Jenkins pipeline is running!"
+                echo "✅ Jenkins pipeline is running on branch ${BRANCH_NAME}!"
             }
         }
 
@@ -23,39 +24,46 @@ pipeline {
             }
         }
 
-        stage('Run Karate Tests in Parallel') {
+        stage('Run Tests in Parallel') {
             parallel {
-                stage('API Tests') {
-                    steps {
-                        dir("${KARATE_DIR}") {
-                            echo "🏃 Running API tests..."
-                            sh './mvnw clean test -Dkarate.options="--tags @api"'
-                        }
-                    }
-                }
-                stage('UI Tests') {
-                    steps {
-                        dir("${KARATE_DIR}") {
-                            echo "🏃 Running UI tests..."
-                            sh './mvnw clean test -Dkarate.options="--tags @ui"'
-                        }
-                    }
-                }
-            }
-        }
 
-        stage('Run Cypress Tests') {
-            steps {
-                echo "🏃 Running Cypress tests..."
-                // Run headless Cypress tests
-                sh 'npm run cypress:run-headless'
+                stage('Karate Tests') {
+                    parallel {
+                        stage('API Tests') {
+                            steps {
+                                dir("${KARATE_DIR}") {
+                                    echo "🏃 Running Karate API tests..."
+                                    sh './mvnw clean test -Dkarate.options="--tags @api"'
+                                }
+                            }
+                        }
+                        stage('UI Tests') {
+                            steps {
+                                dir("${KARATE_DIR}") {
+                                    echo "🏃 Running Karate UI tests..."
+                                    sh './mvnw clean test -Dkarate.options="--tags @ui"'
+                                }
+                            }
+                        }
+                    }
+                }
+
+                stage('Cypress Tests') {
+                    steps {
+                        echo "🏃 Running Cypress tests..."
+                        sh 'npm run cypress:run-headless'
+                    }
+                }
             }
         }
 
         stage('Archive Test Results') {
             steps {
+                // Karate reports
                 junit "${KARATE_DIR}/target/surefire-reports/*.xml"
                 archiveArtifacts artifacts: "${KARATE_DIR}/target/karate-reports/*.html", allowEmptyArchive: true
+
+                // Cypress reports
                 archiveArtifacts artifacts: "cypress/screenshots/**/*.*", allowEmptyArchive: true
                 archiveArtifacts artifacts: "cypress/videos/**/*.*", allowEmptyArchive: true
             }
@@ -63,7 +71,7 @@ pipeline {
     }
 
     post {
-        success { echo "🎉 Pipeline completed successfully!" }
+        success { echo "🎉 Pipeline completed successfully on branch ${BRANCH_NAME}!" }
         failure { echo "❌ Build or tests failed. Check console output." }
         always { echo "📝 Pipeline finished. Review stages and test results above." }
     }
