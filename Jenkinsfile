@@ -1,14 +1,13 @@
 pipeline {
     agent any
 
-    // Use tools installed in Jenkins
     tools {
-        jdk 'jdk17'   // matches your configured JDK
+        jdk 'jdk17'
     }
 
     environment {
-        KARATE_DIR = 'karate'   // Relative path to Karate project
-        REPORTS_DIR = 'reports' // Top-level custom reports folder
+        KARATE_DIR = 'karate'
+        REPORTS_DIR = 'reports'
     }
 
     stages {
@@ -25,27 +24,39 @@ pipeline {
             }
         }
 
-        stage('Run Karate Tests') {
-            steps {
-                dir("${KARATE_DIR}") {
-                    echo "🏃 Running Karate tests using Maven wrapper..."
-                    // Ensure Maven wrapper is executable and run tests
-                    sh 'chmod +x mvnw'
-                    sh './mvnw clean test'
+        stage('Run Karate Tests in Parallel') {
+            parallel {
+                stage('API Tests') {
+                    steps {
+                        echo "🏃 Running API tests..."
+                        sh 'chmod +x mvnw'
+                        sh './mvnw -f pom.xml clean test -Dkarate.options="--tags @api"'
+                    }
+                    post {
+                        always {
+                            junit '**/target/surefire-reports/*.xml'
+                        }
+                    }
+                }
+                stage('UI Tests') {
+                    steps {
+                        echo "🏃 Running UI tests..."
+                        sh 'chmod +x mvnw'
+                        sh './mvnw -f pom.xml clean test -Dkarate.options="--tags @ui"'
+                    }
+                    post {
+                        always {
+                            junit '**/target/surefire-reports/*.xml'
+                        }
+                    }
                 }
             }
         }
 
-        stage('Archive Test Results') {
+        stage('Archive Reports') {
             steps {
-                // Archive Maven Surefire JUnit reports
-                dir("${KARATE_DIR}") {
-                    junit '**/target/surefire-reports/*.xml'
-                }
-                // Archive any top-level custom reports
-                dir("${REPORTS_DIR}") {
-                    junit '**/*.xml'
-                }
+                echo "📂 Archiving Karate HTML reports..."
+                archiveArtifacts artifacts: "${REPORTS_DIR}/**/*", allowEmptyArchive: true
             }
         }
     }
