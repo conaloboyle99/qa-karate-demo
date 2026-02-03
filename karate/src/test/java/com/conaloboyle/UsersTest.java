@@ -1,12 +1,12 @@
 package com.conaloboyle;
 
 import com.intuit.karate.junit5.Karate;
+import com.intuit.karate.junit5.Karate.Test;
 
 class UsersTest {
 
-    @Karate.Test
-    Karate testUsers() {
-        // Use absolute classpath to the feature
-        return Karate.run("classpath:features/users.feature");
-    }
+   @Test
+   Karate testUsers() {
+       return Karate.run("classpath:features/users.feature");
+   }
 }
