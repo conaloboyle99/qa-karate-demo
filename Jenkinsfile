@@ -1,43 +1,50 @@
 pipeline {
     agent any
 
-    stages {
+    environment {
+        WORKDIR = 'karate'       // Folder containing pom.xml
+        MAVEN_CMD = './mvnw'     // Maven wrapper
+    }
 
+    stages {
         stage('Pipeline Check') {
             steps {
-                echo "✅ Jenkins pipeline is running!"  // Quick verification stage
+                echo "✅ Jenkins pipeline is running!"
             }
         }
 
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/conaloboyle99/qa-karate-demo.git',
-                    branch: 'main',
-                    credentialsId: 'github-karate'
+                checkout scm
             }
         }
 
         stage('Run Karate Tests') {
             steps {
-                echo "Running Karate tests using Maven wrapper..."
-                sh './mvnw clean test'
+                // Change directory to where pom.xml exists
+                dir("${WORKDIR}") {
+                    echo "Running Karate tests using Maven wrapper..."
+                    sh "${MAVEN_CMD} clean test"
+                }
             }
         }
 
         stage('Archive Test Results') {
             steps {
-                archiveArtifacts artifacts: 'target/surefire-reports/**/*.xml', allowEmptyArchive: true
-                junit 'target/surefire-reports/**/*.xml'
+                dir("${WORKDIR}") {
+                    archiveArtifacts artifacts: 'target/surefire-reports/**/*.xml', allowEmptyArchive: true
+                    junit 'target/surefire-reports/**/*.xml'
+                }
             }
         }
     }
 
     post {
         always {
-            echo "Pipeline finished. Check results above."
+            echo "Pipeline finished. Check test results above."
         }
         success {
-            echo "🎉 Build and tests successful!"
+            echo "✅ Build and tests completed successfully!"
         }
         failure {
             echo "❌ Build or tests failed. Check console output for details."
