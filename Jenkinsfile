@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         jdk 'jdk17'
-        nodejs 'nodejs18'   // make sure NodeJS tool exists in Jenkins
+        // ❌ NO nodejs tool — plugin not installed
     }
 
     environment {
@@ -55,7 +55,7 @@ pipeline {
             }
         }
 
-        stage('Archive Test Results') {
+        stage('Archive Karate Results') {
             steps {
                 junit "${KARATE_DIR}/target/surefire-reports/*.xml"
                 archiveArtifacts artifacts: "${KARATE_DIR}/target/karate-reports/*.html", allowEmptyArchive: true
@@ -68,7 +68,7 @@ pipeline {
             echo "🎉 Pipeline completed successfully!"
         }
         failure {
-            echo "❌ Pipeline failed — check stage output above."
+            echo "❌ Pipeline failed — see stage logs above."
         }
         always {
             echo "📝 Pipeline finished."
