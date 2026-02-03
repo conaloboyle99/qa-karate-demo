@@ -1,19 +1,25 @@
 pipeline {
     agent any
 
+    // Use tools installed in Jenkins
     tools {
-        maven 'Maven'  // The Maven name you configured
-        jdk 'JAVA_HOME' // Your JDK configured in Jenkins
+        maven 'Maven'     // Name from Global Tool Config
+        jdk 'JAVA_HOME'   // Your configured JDK
+    }
+
+    environment {
+        KARATE_DIR = 'karate'   // Relative path to Karate project
     }
 
     stages {
+
         stage('Pipeline Check') {
             steps {
                 echo "✅ Jenkins pipeline is running!"
             }
         }
 
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
                 checkout scm
             }
@@ -21,23 +27,33 @@ pipeline {
 
         stage('Run Karate Tests') {
             steps {
-                dir('karate') { // Change to the karate/ folder
-                    echo "Running Karate tests using Maven..."
-                    sh "mvn clean test"
+                dir("${KARATE_DIR}") {
+                    echo "🏃 Running Karate tests using Maven..."
+                    // Run Maven clean test
+                    sh 'mvn clean test'
                 }
             }
         }
 
         stage('Archive Test Results') {
             steps {
-                junit '**/target/surefire-reports/*.xml'
+                dir("${KARATE_DIR}") {
+                    // Archive surefire JUnit reports for visibility in Jenkins
+                    junit '**/target/surefire-reports/*.xml'
+                }
             }
         }
     }
 
     post {
+        success {
+            echo "🎉 Pipeline completed successfully!"
+        }
+        failure {
+            echo "❌ Build or tests failed. Check console output for details."
+        }
         always {
-            echo "Pipeline finished. Check test results above."
+            echo "📝 Pipeline finished. Review the stages and test results above."
         }
     }
 }
