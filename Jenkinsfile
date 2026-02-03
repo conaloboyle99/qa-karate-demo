@@ -4,7 +4,7 @@ pipeline {
     // Use tools installed in Jenkins
     tools {
         maven 'Maven'     // Name from Global Tool Config
-        jdk 'JAVA_HOME'   // Your configured JDK
+        jdk 'jdk17'   // Your configured JDK
     }
 
     environment {
