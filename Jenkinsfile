@@ -1,40 +1,33 @@
-// Jenkinsfile for qa-automation-demo
-// This pipeline runs Karate tests (API & UI) in parallel, then Cypress tests, and archives results.
-
 pipeline {
     agent any
 
+    // --- Environment variables ---
     environment {
-        KARATE_DIR = 'karate'                       // Karate project folder
-        CYPRESS_RESULTS_DIR = 'results/cypress'    // Cypress results folder
+        KARATE_DIR = 'karate'        // Karate project folder
+        CYPRESS_DIR = '.'            // Cypress runs from repo root
     }
 
     stages {
 
-        // ----------------------
-        // 1. Basic pipeline check
-        // ----------------------
+        // --- Basic pipeline check ---
         stage('Pipeline Check') {
             steps {
                 echo "✅ Jenkins pipeline is running!"
             }
         }
 
-        // ----------------------
-        // 2. Checkout the repo
-        // ----------------------
+        // --- Checkout source code ---
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
 
-        // ----------------------
-        // 3. Run Karate Tests in Parallel
-        // ----------------------
+        // --- Run Karate tests in parallel ---
         stage('Run Karate Tests (Parallel)') {
             parallel {
 
+                // Karate API tests
                 stage('Karate API Tests') {
                     steps {
                         dir("${KARATE_DIR}") {
@@ -44,6 +37,7 @@ pipeline {
                     }
                 }
 
+                // Karate UI tests (conditional)
                 stage('Karate UI Tests') {
                     steps {
                         dir("${KARATE_DIR}") {
@@ -58,29 +52,24 @@ pipeline {
                         }
                     }
                 }
-
             }
         }
 
-        // ----------------------
-        // 4. Run Cypress Tests
-        // ----------------------
+        // --- Run Cypress tests ---
         stage('Run Cypress Tests') {
             steps {
-                echo "🏃 Running Cypress tests..."
-                // Ensure Cypress results folder exists
-                sh "mkdir -p ${CYPRESS_RESULTS_DIR}"
-                // Ensure Node and npm are visible to Jenkins
-                withEnv(["PATH=/opt/homebrew/bin:$PATH"]) {
+                dir("${CYPRESS_DIR}") {
+                    echo "🏃 Running Cypress tests..."
+                    // Ensure Cypress results folder exists
+                    sh 'mkdir -p results/cypress'
+                    // Install Node dependencies and run Cypress
                     sh 'npm ci'
                     sh 'npx cypress run --reporter junit --reporter-options "mochaFile=results/cypress/results-[hash].xml"'
                 }
             }
         }
 
-        // ----------------------
-        // 5. Archive Test Results
-        // ----------------------
+        // --- Archive test results ---
         stage('Archive Test Results') {
             steps {
                 // Karate reports
@@ -88,26 +77,22 @@ pipeline {
                 archiveArtifacts artifacts: "${KARATE_DIR}/target/karate-reports/*.html", allowEmptyArchive: true
 
                 // Cypress reports
-                junit "${CYPRESS_RESULTS_DIR}/*.xml"
-                archiveArtifacts artifacts: "${CYPRESS_RESULTS_DIR}/*.json, ${CYPRESS_RESULTS_DIR}/*.html", allowEmptyArchive: true
+                junit "results/cypress/*.xml"
+                archiveArtifacts artifacts: "results/cypress/*.json, results/cypress/*.html", allowEmptyArchive: true
             }
         }
+    }
 
-    } // end stages
-
-    // ----------------------
-    // Post-build actions
-    // ----------------------
+    // --- Post-actions ---
     post {
         success {
             echo "🎉 Pipeline completed successfully!"
         }
         failure {
-            echo "❌ Pipeline failed — check stage logs above."
+            echo "❌ Pipeline failed — check logs above."
         }
         always {
             echo "📝 Pipeline finished."
         }
     }
-
-} // end pipeline
+}
