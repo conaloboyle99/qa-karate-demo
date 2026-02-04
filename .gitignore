@@ -47,3 +47,15 @@ reports/
 # ------------------------------
 *.tmp
 *.swp
+
+# Mac system files
+.DS_Store
+
+# Karate reports
+karate-reports/
+
+# Maven target folder
+karate/target/
+
+# Node modules
+node_modules/
