@@ -5,6 +5,7 @@ pipeline {
     environment {
         KARATE_DIR = 'karate'        // Karate project folder
         CYPRESS_DIR = '.'            // Cypress runs from repo root
+        PATH = "/opt/homebrew/bin:${env.PATH}" // Ensure Jenkins can find Node/npm
     }
 
     stages {
