@@ -1,35 +1,45 @@
+// Jenkinsfile for qa-automation-demo
+// This pipeline runs Karate tests (API & UI) in parallel, then Cypress tests, and archives results.
+
 pipeline {
     agent any
 
     environment {
-        KARATE_DIR = 'karate' // Directory containing Karate tests
+        KARATE_DIR = 'karate'      // Karate project folder
+        CYPRESS_RESULTS_DIR = 'results/cypress' // Cypress results folder
     }
 
     stages {
 
+        // ----------------------
+        // 1. Basic pipeline check
+        // ----------------------
         stage('Pipeline Check') {
             steps {
-                /* Simple stage to verify Jenkins pipeline is running */
                 echo "✅ Jenkins pipeline is running!"
             }
         }
 
+        // ----------------------
+        // 2. Checkout the repo
+        // ----------------------
         stage('Checkout Code') {
             steps {
-                /* Pull the latest code from the configured SCM */
                 checkout scm
             }
         }
 
+        // ----------------------
+        // 3. Run Karate Tests in Parallel
+        // ----------------------
         stage('Run Karate Tests (Parallel)') {
             parallel {
 
                 stage('Karate API Tests') {
                     steps {
                         dir("${KARATE_DIR}") {
-                            /* Run API feature tests */
-                            sh './mvnw clean' // Clean target to avoid duplicate file errors
-                            sh './mvnw test -Dkarate.options="classpath:features/users.feature"'
+                            echo "🏃 Running Karate API tests..."
+                            sh './mvnw clean test -Dkarate.options="classpath:features/users.feature"'
                         }
                     }
                 }
@@ -38,11 +48,9 @@ pipeline {
                     steps {
                         dir("${KARATE_DIR}") {
                             script {
-                                /* Only run UI tests if the feature file exists */
                                 if (fileExists('src/test/resources/features/ui.feature')) {
                                     echo "🏃 Running Karate UI tests..."
-                                    sh './mvnw clean'
-                                    sh './mvnw test -Dkarate.options="classpath:features/ui.feature"'
+                                    sh './mvnw clean test -Dkarate.options="classpath:features/ui.feature"'
                                 } else {
                                     echo "⚠️ UI feature file not found, skipping UI tests."
                                 }
@@ -50,43 +58,54 @@ pipeline {
                         }
                     }
                 }
+
             }
         }
 
+        // ----------------------
+        // 4. Run Cypress Tests
+        // ----------------------
         stage('Run Cypress Tests') {
             steps {
-                /* Run front-end Cypress tests */
                 echo "🏃 Running Cypress tests..."
-                sh 'npm ci' // Install Node dependencies
-                sh 'npx cypress run --reporter junit --reporter-options "mochaFile=results/cypress/results-[hash].xml"'
+                // Ensure Node and npm are visible to Jenkins
+                withEnv(["PATH=/opt/homebrew/bin:$PATH"]) {
+                    sh 'npm ci'
+                    sh 'npx cypress run --reporter junit --reporter-options "mochaFile=results/cypress/results-[hash].xml"'
+                }
             }
         }
 
+        // ----------------------
+        // 5. Archive Test Results
+        // ----------------------
         stage('Archive Test Results') {
             steps {
-                /* Save Karate test results */
+                // Karate reports
                 junit "${KARATE_DIR}/target/surefire-reports/*.xml"
                 archiveArtifacts artifacts: "${KARATE_DIR}/target/karate-reports/*.html", allowEmptyArchive: true
 
-                /* Save Cypress test results */
-                junit "results/cypress/*.xml"
-                archiveArtifacts artifacts: "results/cypress/*.json, results/cypress/*.html", allowEmptyArchive: true
+                // Cypress reports
+                junit "${CYPRESS_RESULTS_DIR}/*.xml"
+                archiveArtifacts artifacts: "${CYPRESS_RESULTS_DIR}/*.json, ${CYPRESS_RESULTS_DIR}/*.html", allowEmptyArchive: true
             }
         }
-    }
 
+    } // end stages
+
+    // ----------------------
+    // Post-build actions
+    // ----------------------
     post {
         success {
-            /* Runs when the pipeline succeeds */
             echo "🎉 Pipeline completed successfully!"
         }
         failure {
-            /* Runs when the pipeline fails */
-            echo "❌ Pipeline failed — see stage logs above."
+            echo "❌ Pipeline failed — check stage logs above."
         }
         always {
-            /* Runs no matter what, e.g., cleanup or notifications */
             echo "📝 Pipeline finished."
         }
     }
-}
+
+} // end pipeline
