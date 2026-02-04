@@ -5,8 +5,8 @@ pipeline {
     agent any
 
     environment {
-        KARATE_DIR = 'karate'      // Karate project folder
-        CYPRESS_RESULTS_DIR = 'results/cypress' // Cypress results folder
+        KARATE_DIR = 'karate'                       // Karate project folder
+        CYPRESS_RESULTS_DIR = 'results/cypress'    // Cypress results folder
     }
 
     stages {
@@ -68,6 +68,8 @@ pipeline {
         stage('Run Cypress Tests') {
             steps {
                 echo "🏃 Running Cypress tests..."
+                // Ensure Cypress results folder exists
+                sh "mkdir -p ${CYPRESS_RESULTS_DIR}"
                 // Ensure Node and npm are visible to Jenkins
                 withEnv(["PATH=/opt/homebrew/bin:$PATH"]) {
                     sh 'npm ci'
