@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        jdk 'jdk17'
-    }
-
     environment {
         KARATE_DIR = 'karate'
     }
