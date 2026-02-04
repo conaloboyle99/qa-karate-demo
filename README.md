@@ -53,8 +53,8 @@ Running the Project Locally
 
 1. Clone the repository
 
-git clone <repo-url>
-cd <repo-folder>
+git clone <https://github.com/conaloboyle99/qa-karate-demo.git>.   
+cd qa-karate-demo>        
 
 
 ⸻

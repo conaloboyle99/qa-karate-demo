@@ -1,27 +1,34 @@
 pipeline {
     agent any
 
+    // --- Environment variables ---
     environment {
-        KARATE_DIR = 'karate'
+        KARATE_DIR = 'karate'        // Karate project folder
+        CYPRESS_DIR = '.'            // Cypress runs from repo root
+        PATH = "/opt/homebrew/bin:${env.PATH}" // Ensure Jenkins can find Node/npm
     }
 
     stages {
 
+        // --- Basic pipeline check ---
         stage('Pipeline Check') {
             steps {
                 echo "✅ Jenkins pipeline is running!"
             }
         }
 
+        // --- Checkout source code ---
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
 
+        // --- Run Karate tests in parallel ---
         stage('Run Karate Tests (Parallel)') {
             parallel {
 
+                // Karate API tests
                 stage('Karate API Tests') {
                     steps {
                         dir("${KARATE_DIR}") {
@@ -31,25 +38,39 @@ pipeline {
                     }
                 }
 
+                // Karate UI tests (conditional)
                 stage('Karate UI Tests') {
                     steps {
                         dir("${KARATE_DIR}") {
-                            echo "🏃 Running Karate UI tests..."
-                            sh './mvnw clean test -Dkarate.options="classpath:features/ui.feature" || echo "No UI tests found, skipping..."'
+                            script {
+                                if (fileExists('src/test/resources/features/ui.feature')) {
+                                    echo "🏃 Running Karate UI tests..."
+                                    sh './mvnw clean test -Dkarate.options="classpath:features/ui.feature"'
+                                } else {
+                                    echo "⚠️ UI feature file not found, skipping UI tests."
+                                }
+                            }
                         }
                     }
                 }
             }
         }
 
+        // --- Run Cypress tests ---
         stage('Run Cypress Tests') {
             steps {
-                echo "🏃 Running Cypress tests..."
-                sh 'npm ci'
-                sh 'npx cypress run --reporter junit --reporter-options "mochaFile=results/cypress/results-[hash].xml"'
+                dir("${CYPRESS_DIR}") {
+                    echo "🏃 Running Cypress tests..."
+                    // Ensure Cypress results folder exists
+                    sh 'mkdir -p results/cypress'
+                    // Install Node dependencies and run Cypress
+                    sh 'npm ci'
+                    sh 'npx cypress run --reporter junit --reporter-options "mochaFile=results/cypress/results-[hash].xml"'
+                }
             }
         }
 
+        // --- Archive test results ---
         stage('Archive Test Results') {
             steps {
                 // Karate reports
@@ -63,12 +84,13 @@ pipeline {
         }
     }
 
+    // --- Post-actions ---
     post {
         success {
             echo "🎉 Pipeline completed successfully!"
         }
         failure {
-            echo "❌ Pipeline failed — see stage logs above."
+            echo "❌ Pipeline failed — check logs above."
         }
         always {
             echo "📝 Pipeline finished."
