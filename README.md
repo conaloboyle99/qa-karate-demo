@@ -93,6 +93,9 @@ Interactive mode:
 npx cypress open
 
 
+5. Run all tests (Karate + Cypress)
+
+./run-tests.sh
 ⸻
 
 Running in CI (Jenkins)
@@ -209,3 +212,4 @@ It should be evaluated on:
 Author
 
 Conal O’Boyle
+
