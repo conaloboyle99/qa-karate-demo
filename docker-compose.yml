@@ -1,0 +1,27 @@
+services:
+
+  karate:
+    build:
+      context: ./karate
+      dockerfile: Dockerfile
+    container_name: qa-karate
+    working_dir: /app
+    volumes:
+      - ./karate:/app
+      - maven-repo:/root/.m2   # Persist Maven dependencies
+    command: mvn test
+
+  cypress:
+    image: cypress/included:12.16.0
+    container_name: cypress-tests
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - maven-repo:/root/.m2   # Optional: share Maven cache
+    command: npx cypress run
+    depends_on:
+      - karate
+
+volumes:
+  maven-repo:
+
