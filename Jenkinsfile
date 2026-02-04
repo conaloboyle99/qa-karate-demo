@@ -31,16 +31,20 @@ pipeline {
                     }
                 }
 
-                stage('Karate UI Tests') {
-                    steps {
-                        dir("${KARATE_DIR}") {
-                            echo "🏃 Running Karate UI tests..."
-                            sh './mvnw clean test -Dkarate.options="classpath:features/ui.feature" || echo "No UI tests found, skipping..."'
-                        }
-                    }
+        stage('Karate UI Tests') {
+    steps {
+        dir("${KARATE_DIR}") {
+            script {
+                if (fileExists('src/test/resources/features/ui.feature')) {
+                    echo "🏃 Running Karate UI tests..."
+                    sh './mvnw clean test -Dkarate.options="classpath:features/ui.feature"'
+                } else {
+                    echo "⚠️ UI feature file not found, skipping UI tests."
                 }
             }
         }
+    }
+}
 
         stage('Run Cypress Tests') {
             steps {
