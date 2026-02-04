@@ -3,7 +3,6 @@ pipeline {
 
     tools {
         jdk 'jdk17'
-        // ❌ NO nodejs tool — plugin not installed
     }
 
     environment {
@@ -31,7 +30,6 @@ pipeline {
                     steps {
                         dir("${KARATE_DIR}") {
                             echo "🏃 Running Karate API tests..."
-                            // Run the actual feature file directly
                             sh './mvnw clean test -Dkarate.options="classpath:features/users.feature"'
                         }
                     }
@@ -41,7 +39,6 @@ pipeline {
                     steps {
                         dir("${KARATE_DIR}") {
                             echo "🏃 Running Karate UI tests..."
-                            // Can point to UI features here if you have them
                             sh './mvnw clean test -Dkarate.options="classpath:features/ui.feature" || echo "No UI tests found, skipping..."'
                         }
                     }
@@ -53,14 +50,19 @@ pipeline {
             steps {
                 echo "🏃 Running Cypress tests..."
                 sh 'npm ci'
-                sh 'npx cypress run'
+                sh 'npx cypress run --reporter junit --reporter-options "mochaFile=results/cypress/results-[hash].xml"'
             }
         }
 
-        stage('Archive Karate Results') {
+        stage('Archive Test Results') {
             steps {
+                // Karate reports
                 junit "${KARATE_DIR}/target/surefire-reports/*.xml"
                 archiveArtifacts artifacts: "${KARATE_DIR}/target/karate-reports/*.html", allowEmptyArchive: true
+
+                // Cypress reports
+                junit "results/cypress/*.xml"
+                archiveArtifacts artifacts: "results/cypress/*.json, results/cypress/*.html", allowEmptyArchive: true
             }
         }
     }
