@@ -70,35 +70,20 @@ This will:
 
 ⸻
 
-3. Run API tests (Karate)
-
-mvn test
-
-or (inside Docker, if configured):
-
-docker compose run karate-tests
-
-
-⸻
-
-4. Run UI tests (Cypress)
-
-Headless (CI-style):
-
-npm install
-npx cypress run
-
-Interactive mode:
-
-npx cypress open
-
-
-5. Run all tests (Karate + Cypress)
+3. Run all tests (Karate + Cypress)
 
 ./run-tests.sh
+
+This executes all Karate and Cypress tests inside Docker, generates reports, and works on any machine without needing Java, Maven, Node, or Cypress installed locally
+ 
+It’s also CI-ready, exiting with a failure code if any test fails.
+
 ⸻
 
 Running in CI (Jenkins)
+
+
+
 
 The Jenkinsfile defines the pipeline stages:
 	1.	Checkout
