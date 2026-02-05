@@ -21,7 +21,7 @@ Tech Stack
 Project Structure
 
 .
-├── cypress/              # UI tests
+├── cypress/              # UI tests	
 │   ├── e2e/              # Cypress specs
 │   ├── fixtures/         # Test data
 │   └── support/          # Commands & config
@@ -208,6 +208,14 @@ It should be evaluated on:
 	•	Test intent and scope discipline
 
 ⸻
+
+Next steps:
+	1.Add tests which include Root Cause Analysis
+	2.Fault Slippage Analysis - bugs getting past QA to UAT/Prod? Determine suite weaknesses and plan to remedy any issues
+	3.Defect reporting and debugging - collect and compile data  on bugs
+	4.Cloud and GCP faming - dockerized project is GCP ready
+	5.Publish to GIT
+
 
 Author
 
