@@ -152,22 +152,20 @@ Design Principles
 
 ⸻
 
-Known Limitations / Future Improvements
-	•	Expanded negative API coverage
-	•	Test data management strategy
-	•	Improved reporting (e.g., HTML reports)
-	•	Parallel execution optimization
+Limitations, Roadmap & Next Steps
 
-These are intentional next steps, not oversights.
+The following items represent intentional design boundaries and planned enhancements, not gaps or oversights. The project prioritises clarity, reproducibility, and CI credibility over exhaustive coverage.
 
-⸻
-
-Next Steps
-	•	Add tests including Root Cause Analysis
-	•	Perform Fault Slippage Analysis to identify suite weaknesses
-	•	Improve Defect Reporting and Debugging
-	•	Ensure Cloud / GCP readiness with Dockerized setup
-	•	Publish all updates to Git
+Planned improvements and extensions include:
+	•	Expanded negative API coverage to increase robustness
+	•	A defined test data management strategy
+	•	Enhanced reporting (e.g. consolidated HTML reports)
+	•	Parallel execution optimisation for faster CI feedback
+	•	Additional tests incorporating Root Cause Analysis
+	•	Fault Slippage Analysis to identify weaknesses where defects escape to later stages
+	•	Improved defect reporting and debugging workflows
+	•	Validation of full cloud / GCP readiness using the Dockerised setup
+	•	Ongoing publication and refinement via Git
 
 ⸻
 
