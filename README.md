@@ -2,9 +2,12 @@ Automation Project
 
 Overview
 
-This project demonstrates a realistic, CI-ready test automation setup covering both UI and API testing. It is intentionally designed to reflect how modern teams structure automation: clear separation of concerns, reproducibility via Docker, and execution via CI (Jenkins).
+This project demonstrates a realistic, CI-ready test automation framework covering both UI and API testing. It reflects modern automation practices with:
+	•	Clear separation of concerns
+	•	Reproducibility via Docker
+	•	Execution via Jenkins CI/CD
 
-The goal is not maximum test count, but meaningful risk reduction through targeted automation.
+The goal is meaningful risk reduction through targeted automation, rather than maximum test coverage.
 
 ⸻
 
@@ -20,8 +23,7 @@ Tech Stack
 
 Project Structure
 
-.
-├── cypress/              # UI tests	
+├── cypress/              # UI tests
 │   ├── e2e/              # Cypress specs
 │   ├── fixtures/         # Test data
 │   └── support/          # Commands & config
@@ -34,12 +36,9 @@ Project Structure
 ├── pom.xml               # Karate dependencies
 └── README.md             # This file
 
-
-⸻
-
 Prerequisites
 
-You need the following installed locally:
+Install the following locally:
 	•	Docker (and Docker Compose)
 	•	Node.js (LTS recommended)
 	•	Java 11+
@@ -53,14 +52,12 @@ Running the Project Locally
 
 1. Clone the repository
 
-git clone <https://github.com/conaloboyle99/qa-karate-demo.git>.   
-cd qa-karate-demo>        
-
-
-⸻
+bash
+git clone https://github.com/conaloboyle99/qa-karate-demo.git
+cd qa-karate-demo
 
 2. Start the environment (recommended)
-
+bash
 docker compose up --build
 
 This will:
@@ -68,22 +65,15 @@ This will:
 	•	Start the application under test (if applicable)
 	•	Provide a consistent runtime for tests
 
-⸻
-
 3. Run all tests (Karate + Cypress)
 
 ./run-tests.sh
 
-This executes all Karate and Cypress tests inside Docker, generates reports, and works on any machine without needing Java, Maven, Node, or Cypress installed locally
- 
-It’s also CI-ready, exiting with a failure code if any test fails.
-
-⸻
+	•	Executes all tests inside Docker
+	•	Generates reports in reports/, results/, and cypress/ folders
+	•	CI-ready: exits with a failure code if any test fails
 
 Running in CI (Jenkins)
-
-
-
 
 The Jenkinsfile defines the pipeline stages:
 	1.	Checkout
@@ -94,47 +84,38 @@ The Jenkinsfile defines the pipeline stages:
 
 Expected behaviour:
 	•	A failing test fails the pipeline
-	•	Logs clearly indicate whether failure is UI or API related
+	•	Logs clearly indicate whether the failure is UI or API related
 
 ⸻
 
 Test Strategy
 
 Objectives
-
-The automation suite aims to:
 	•	Catch critical regressions early
 	•	Validate core business flows, not edge-case UI details
 	•	Provide fast feedback in CI
 	•	Be reproducible on any machine
 
-⸻
-
 In Scope
 
 API Testing (Karate)
 	•	Core endpoints
-	•	Happy paths and key negative cases
+	•	Happy paths & key negative cases
 	•	Contract-level validation (status codes, schemas, critical fields)
-	•	Authentication and authorization behaviour (where applicable)
+	•	Authentication & authorization checks
 
 UI Testing (Cypress)
 	•	Critical user journeys (smoke tests)
 	•	High-risk flows (login, submission, confirmation, navigation)
 	•	Cross-page integration behaviour
 
-⸻
-
 Out of Scope (by design)
 	•	Exhaustive UI validation (styling, pixel-perfect checks)
 	•	Low-risk CRUD permutations
-	•	Browser compatibility matrix
-	•	Performance and load testing
+	•	Browser compatibility testing
+	•	Performance/load testing
 
-These are excluded to keep tests:
-	•	Stable
-	•	Fast
-	•	Maintainable
+Tests are designed to be stable, fast, and maintainable.
 
 ⸻
 
@@ -152,55 +133,52 @@ Test Pyramid Alignment
 
 Environment Strategy
 	•	Tests are environment-agnostic
-	•	Configuration is externalised (env vars / config files)
+	•	Configuration is externalized (env vars / config files)
 	•	Docker ensures parity between local and CI runs
 
 ⸻
 
 Failure Strategy
 	•	API failures block UI execution where appropriate
-	•	Failures are categorised (API vs UI)
+	•	Failures are categorized (API vs UI)
 	•	Logs and reports are preserved in CI
 
 ⸻
 
 Design Principles
 	•	Prefer clarity over cleverness
-	•	Tests describe behaviour, not implementation
-	•	One assertion failure should indicate one clear problem
-	•	Automation supports humans — it does not replace judgment
+	•	Tests describe behavior, not implementation
+	•	One assertion failure = one clear problem
+	•	Automation supports humans, does not replace judgment
 
 ⸻
 
 Known Limitations / Future Improvements
 	•	Expanded negative API coverage
 	•	Test data management strategy
-	•	Improved reporting (e.g. HTML reports)
-	•	Parallel execution optimisation
+	•	Improved reporting (e.g., HTML reports)
+	•	Parallel execution optimization
 
 These are intentional next steps, not oversights.
 
 ⸻
 
+Next Steps
+	•	Add tests including Root Cause Analysis
+	•	Perform Fault Slippage Analysis to identify suite weaknesses
+	•	Improve Defect Reporting and Debugging
+	•	Ensure Cloud / GCP readiness with Dockerized setup
+	•	Publish all updates to Git
+
+⸻
+
 How This Project Should Be Evaluated
-
-This project is not a demo of framework features.
-
-It should be evaluated on:
 	•	Structure
 	•	Reproducibility
 	•	CI readiness
 	•	Test intent and scope discipline
 
 ⸻
-
-Next steps:
-	1.Add tests which include Root Cause Analysis
-	2.Fault Slippage Analysis - bugs getting past QA to UAT/Prod? Determine suite weaknesses and plan to remedy any issues
-	3.Defect reporting and debugging - collect and compile data  on bugs
-	4.Cloud and GCP faming - dockerized project is GCP ready
-	5.Publish to GIT
-
 
 Author
 
