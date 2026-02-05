@@ -52,12 +52,11 @@ Running the Project Locally
 
 1. Clone the repository
 
-bash
 git clone https://github.com/conaloboyle99/qa-karate-demo.git
 cd qa-karate-demo
 
 2. Start the environment (recommended)
-bash
+
 docker compose up --build
 
 This will:
